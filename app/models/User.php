@@ -40,4 +40,12 @@ class User {
         //Check row 
         return ($this->db->rowCount() > 0) ? true : false; 
     }
+
+    public function getUserById($id) {
+        $this->db->query('SELECT * FROM users WHERE id = :id');
+        $this->db->bind([':id'=> $id]);
+
+        return $this->db->getSingleRow();
+
+    }
 }

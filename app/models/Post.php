@@ -35,4 +35,33 @@ class Post {
 
         return $this->db->execute() ? true : false;  
     }
+
+    public function updatePost($data) {
+        $this->db->query('UPDATE posts SET title = :title, body = :body WHERE id = :id');
+        // bind values [:param => value ]
+        $this->db->bind([
+            ':id'=>$data['id'], 
+            ':title'=>$data['title'], 
+            ':body'=>$data['body'] 
+        ]);
+
+        return $this->db->execute() ? true : false;  
+    }
+
+    public function getPostById($id) {
+        $this->db->query('SELECT * FROM posts WHERE id = :id');
+        $this->db->bind([':id'=> $id]);
+
+        return $this->db->getSingleRow();
+
+    }
+
+    
+    public function deletePost($id) {
+        $this->db->query('DELETE FROM posts WHERE id = :id');
+        $this->db->bind([':id'=> $id]);
+
+        return $this->db->execute() ? true : false;
+
+    }
 }
