@@ -24,7 +24,7 @@
             </li>
           <?php else:?>
           <li class="nav-item">
-                <a class="nav-link" href="#">Welcome <?php echo $_SESSION['user_name']; ?></a>
+                <a class="nav-link" href="<?php echo URL_ROOT;?>/users/profile/<?php echo $_SESSION['user_id']?>">Welcome <?php echo $_SESSION['user_name']; ?></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL_ROOT?>/users/logout">Logout</a>

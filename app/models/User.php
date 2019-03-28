@@ -31,6 +31,11 @@ class User {
         return password_verify($password, $hashed_password ) ? $row : false;  
     }
 
+    
+    public function uploadImage($id) {
+        
+    }
+
     //Check if email already exists 
     public function emailExists($email) {
         $this->db->query("SELECT * FROM users WHERE email = :email");
@@ -46,6 +51,5 @@ class User {
         $this->db->bind([':id'=> $id]);
 
         return $this->db->getSingleRow();
-
     }
 }
