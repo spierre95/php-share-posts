@@ -32,8 +32,18 @@ class User {
     }
 
     
-    public function uploadImage($id) {
-        
+    public function updateProfile($data) {
+            $this->db->query('UPDATE users SET name = :name, description = :description, location = :location, profile_image = :profile_image WHERE id = :id');
+            // bind values [:param => value ]
+            $this->db->bind([
+                ':id'=>$data['id'], 
+                ':name'=>$data['name'], 
+                ':description'=>$data['description'],
+                ':location' =>$data['location'],
+                ':profile_image'=>$data['image'] 
+            ]);
+    
+            return $this->db->execute() ? true : false;  
     }
 
     //Check if email already exists 

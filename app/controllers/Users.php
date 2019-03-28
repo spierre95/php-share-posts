@@ -134,6 +134,7 @@ class Users extends Controller {
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
         $data = [
+            'id' => $id,
             'name' => trim($_POST['name']),
             'image' => $_FILES['image'],
             'location' => trim($_POST['location']),
@@ -142,8 +143,11 @@ class Users extends Controller {
             'image_error'=> '',
             'location_error'=> '',
             'description_error'=> '',
+            'file_ext' => '',
         ];
 
+        //TODO: validate location is valid 
+        
         if(empty($data['name'])){
             $data['name_error'] = 'Please enter name';
         }
@@ -152,63 +156,59 @@ class Users extends Controller {
             $data['description_error'] = 'Bio must be less than 200 characters';
         } 
 
-        $this->validateImage($data);
+        $data = $this->validateImage($data);
+
+        if (!empty($data['name_error']) && !empty($data['description_error']) && !empty($data['image_error'])){
+        
+              if($this->userModel->updateProfile($data)){
+                  $user = $this->userModel->getUserById($id);
+                  flash('profile_update_success', 'Your profile has been successfully updated');
+                  redirect('users/profile/'. $id);
+              } else {
+                  die('registration failed');
+              }
+          
+          } else {
+              //Load view with errors
+              $this->view('users/edit', $data);
+          }
         
     } else {
 
-        $user = $this->userModel->getUserById($id);
-    
+            $user = $this->userModel->getUserById($id);
+
             $data = [
-                'user' => $user,
+                'id' => $id,
+                'name' => $user->name,
+                'image' => $user->profile_image,
+                'location' => $user->location,
+                'description' => $user->description,
                 'name_error'=> '',
                 'image_error'=> '',
                 'location_error'=> '',
-                'description_password_error'=> '',
+                'description_error'=> '',
             ];
+
+           
         //load form 
         return $this->view('users/edit', $data);
     }
-
-    //check for post request 
-
-    //sanatize input 
-
-    //check for forms errors
-
-    // image errors, description use validate input method
-
-    // handle image upload 
-
-    // check for errors 
-
-    // if no errors update profile 
-
-    //errors display view with errors
-
-    //if not post request display view 
-
-    // get user by id 
-
-    // display existing data in form
-
-    //display view 
-
 }
-
-    public function validateImage($image) {
+    public function validateImage($data) {
         // Check image
 
-        $uploadError = ""; 
-        $fileError = $image['error'];
+        $fileError = $data['image']['error'];
 
         if($fileError > 0){
             // error uploading file
-            return $uploadError = 'upload error';
+            $data['image_error'] = 'upload error';
         }
         $maxSize = 100000;
-        $fileType = $image['type'];
-        $fileSize = $image['size'];
-        $fileTempName = $image['tmp_name'];
+        $fileType = $data['image']['type'];
+        $fileSize = $data['image']['size'];
+        $fileTempName = $data['image']['tmp_name'];
+
+        print_r($data['image']);
 
 
         $trueFileType = exif_imagetype($fileTempName);
@@ -216,26 +216,26 @@ class Users extends Controller {
         if (in_array($trueFileType, $allowedFiles)) {
             // file exceed max size
             if($fileSize > $maxSize){
-                $uploadError = 'image exceeds max file size';
+                $data['image_error'] = 'image exceeds max file size';
             }else{
                 switch($trueFileType){
                     case 1 : 
-                        $fileExt  = ".gif";
+                        $data['file_ext']  = ".gif";
                     break;
                     case 2: 
-                        $fileExt  = ".jpg";
+                        $data['file_ext']   = ".jpg";
                     break;
                     case 3 : 
-                        $fileExt  = ".png";
+                        $data['file_ext']  = ".png";
                     break;
                 }
             }
         }else{
             //wrong file type
-            $uploadError = 'wrong file type. PLease upload a png or jpg';
+            $data['image_error'] = 'wrong file type. PLease upload a png or jpg';
         }
 
-        return $uploadError;
+        return $data;
     }
 
     public function validateInput($form, $formInput, $errors){
